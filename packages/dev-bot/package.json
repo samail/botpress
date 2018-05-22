@@ -12,6 +12,7 @@
     "@botpress/audience": "*",
     "@botpress/builtins": "*",
     "@botpress/nlu": "*",
+    "@botpress/qna": "*",
     "@botpress/skill-choice": "*",
     "@botpress/hitl": "*",
     "@botpress/channel-web": "*",
