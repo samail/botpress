@@ -42,6 +42,7 @@
 
     "no-undef": 2, // disallow use of undeclared variables unless mentioned in a /*global */ block
     "no-var": 2,
+    "no-unused-vars": 1,
     "prefer-const": ["error", {
       "destructuring": "all",
       "ignoreReadBeforeAssign": false

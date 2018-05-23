@@ -17,6 +17,7 @@ const getQuestionId = ({ questions }) =>
 export default class Storage {
   constructor({ bp, config, provider }) {
     this.ghost = bp.ghostManager
+    this.projectDir = bp.projectLocation
     this.qnaDir = config.qnaDir
   }
 
