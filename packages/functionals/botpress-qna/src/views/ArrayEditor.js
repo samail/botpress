@@ -89,7 +89,7 @@ export default class ArrayEditor extends Component {
     updateState && updateState({ items: items.slice(0, index).concat(items.slice(index + 1)) })
   }
 
-  isDirty = index => !!this.state.originals[index == null ? NEW_INDEX : index]
+  isDirty = index => this.state.originals[index == null ? NEW_INDEX : index] !== undefined
 
   renderItemForm = (value, index) => {
     const { renderItem } = this.props
@@ -115,7 +115,7 @@ export default class ArrayEditor extends Component {
       <Fragment>
         {this.renderItemForm(newItem, null)}
         <hr />
-        {items.map(this.renderItemForm)}
+        {(items || []).map(this.renderItemForm)}
       </Fragment>
     )
   }

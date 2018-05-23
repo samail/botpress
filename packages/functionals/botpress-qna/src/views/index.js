@@ -16,6 +16,76 @@ const getInputValue = input => {
   }
 }
 
+class QuestionsEditor extends Component {
+  state = {
+    newItem: ''
+  }
+
+  onQuestionChange = (index, onChange) => event => {
+    onChange(event.target.value, index)
+  }
+
+  updateState = newState => {
+    if (newState.newItem != null) {
+      this.setState({ newItem: newState.newItem })
+    }
+    if (newState.items != null) {
+      this.props.onChange(newState.items)
+    }
+  }
+
+  canSave = data => !!data
+
+  renderForm = (data, index, { isDirty, onCreate, onDelete, onChange }) => (
+    <Fragment>
+      {index == null && <h4>New Question</h4>}
+      <FormGroup>
+        <FormControl
+          componentClass="textarea"
+          placeholder="Question"
+          value={data}
+          onChange={this.onQuestionChange(index, onChange)}
+        />
+      </FormGroup>
+
+      <ButtonToolbar>
+        {index != null && (
+          <Button type="button" bsSize="sm" bsStyle="danger" onClick={() => onDelete(index)}>
+            Delete
+          </Button>
+        )}
+        {index == null && (
+          <Button
+            type="button"
+            bsSize="sm"
+            bsStyle="success"
+            onClick={onCreate}
+            disabled={!isDirty || !this.canSave(data)}
+          >
+            Add
+          </Button>
+        )}
+      </ButtonToolbar>
+    </Fragment>
+  )
+
+  render() {
+    return (
+      <Panel>
+        <Panel.Body>
+          <ArrayEditor
+            items={this.props.items}
+            newItem={this.state.newItem}
+            renderItem={this.renderForm}
+            updateState={this.updateState}
+            createNewItem={() => ''}
+          />
+        </Panel.Body>
+      </Panel>
+    )
+  }
+}
+
 export default class QnaAdmin extends Component {
   createEmptyQuestion() {
     return {
@@ -62,13 +132,27 @@ export default class QnaAdmin extends Component {
     )
   }
 
+  onQuestionsChanged = (index, onChange) => questions => {
+    const value = index == null ? this.state.newItem : this.state.items[index]
+    onChange(
+      {
+        ...value,
+        data: {
+          ...value.data,
+          questions
+        }
+      },
+      index
+    )
+  }
+
   updateState = newState => this.setState(newState)
 
   getFormControlId = (index, suffix) => `form-${index != null ? index : 'new'}-${suffix}`
 
-  canSave = data => !!data.answer // && !!data.questions.length
+  canSave = data => !!data.answer && !!data.questions.length
 
-  renderQuestionForm = ({ data }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange }) => (
+  renderForm = ({ data }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange }) => (
     <Fragment>
       {index == null && <h3>New Q&amp;A</h3>}
       <Checkbox checked={data.enabled} onChange={this.onPropChange(index, 'enabled', onChange)}>
@@ -83,6 +167,14 @@ export default class QnaAdmin extends Component {
           onChange={this.onPropChange(index, 'answer', onChange)}
         />
       </FormGroup>
+
+      <Panel>
+        <Panel.Heading>Questions</Panel.Heading>
+        <Panel.Body>
+          <QuestionsEditor items={data.questions} onChange={this.onQuestionsChanged(index, onChange)} />
+        </Panel.Body>
+      </Panel>
+
       <ButtonToolbar>
         <Button type="button" onClick={() => onReset(index)} disabled={!isDirty}>
           Reset
@@ -98,7 +190,7 @@ export default class QnaAdmin extends Component {
           onClick={() => (index != null ? onEdit(index) : onCreate())}
           disabled={!isDirty || !this.canSave(data)}
         >
-          {index != null ? 'Save' : 'Create'}
+          {index != null ? `${isDirty ? '* ' : ''}Save` : 'Create'}
         </Button>
       </ButtonToolbar>
     </Fragment>
@@ -111,13 +203,10 @@ export default class QnaAdmin extends Component {
           <ArrayEditor
             items={this.state.items}
             newItem={this.state.newItem}
-            renderItem={this.renderQuestionForm}
+            renderItem={this.renderForm}
             onCreate={this.onCreate}
             onEdit={this.onEdit}
             onDelete={this.onDelete}
-            onChange={this.onChange}
-            onReset={this.onReset}
-            isDirty={this.isDirty}
             updateState={this.updateState}
             createNewItem={this.createEmptyQuestion}
           />
