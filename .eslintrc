@@ -2,7 +2,7 @@
   // http://eslint.org/docs/rules/
   "parser": "babel-eslint",
 
-  "extends": ["prettier"],
+  "extends": ["prettier", "plugin:react/recommended"],
 
   "env": {
     "browser": true, // browser global variables.
@@ -26,7 +26,7 @@
     "goog": true
   },
 
-  "plugins": ["prettier", "jest"],
+  "plugins": ["prettier", "jest", "react"],
 
   "rules": {
     "no-extra-semi": 1, // disallow unnecessary semicolons
@@ -51,6 +51,8 @@
     "no-array-constructor": 2,
     "no-new-object": 2,
 
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+
+    "react/prop-types": 0
   }
 }

@@ -1,25 +1,11 @@
 import React, { Component, Fragment } from 'react'
 
-import {
-  Col,
-  Row,
-  Grid,
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Checkbox,
-  Panel,
-  ButtonToolbar,
-  Button
-} from 'react-bootstrap'
+import { FormGroup, ControlLabel, FormControl, Checkbox, Panel, ButtonToolbar, Button } from 'react-bootstrap'
 
 import classnames from 'classnames'
-import omit from 'lodash/omit'
 
 import ArrayEditor from './ArrayEditor'
 import style from './style.scss'
-
-const NEW_INDEX = 'new'
 
 const getInputValue = input => {
   switch (input.type) {
@@ -44,66 +30,22 @@ export default class QnaAdmin extends Component {
 
   state = {
     newItem: this.createEmptyQuestion(),
-    items: [],
-    originals: {}
+    items: []
   }
 
   onCreate = value => {
-    this.setState({
-      newItem: this.createEmptyQuestion(),
-      items: [this.state.newItem].concat(this.state.items)
-    })
+    // API to create new
+    console.log('created', value)
   }
 
-  onChange = (value, index) => {
-    if (index == null) {
-      const newState = { newItem: value }
-      if (!this.state.originals[NEW_INDEX]) {
-        newState.originals = {
-          ...this.state.originals,
-          [NEW_INDEX]: this.state.newItem
-        }
-      }
-      this.setState(newState)
-    } else {
-      const items = [...this.state.items]
-      items[index] = value
-      const newState = { items }
-      if (!this.state.originals[index]) {
-        newState.originals = {
-          ...this.state.originals,
-          [index]: this.state.items[index]
-        }
-      }
-      this.setState(newState)
-    }
-  }
-
-  onSaveChange = index => {
-    this.setState({
-      originals: omit(this.state.originals, index == null ? NEW_INDEX : index)
-    })
-    if (index == null) {
-    } else {
-    }
-  }
-
-  onReset = index => {
-    if (index == null) {
-      this.setState({
-        newItem: this.state.originals[NEW_INDEX],
-        originals: omit(this.state.originals, NEW_INDEX)
-      })
-    } else {
-      const items = [...this.state.items]
-      items[index] = this.state.originals[index]
-      this.setState({ items, originals: omit(this.state.originals, index) })
-    }
+  onEdit = index => {
+    // API to edit
+    console.log('edited', index)
   }
 
   onDelete = index => {
-    const { items } = this.state
-    this.setState({ items: items.slice(0, index).concat(items.slice(index + 1)) })
+    // API to delete
+    console.log('delete', index)
   }
 
   onPropChange = (index, prop, onChange) => event => {
@@ -120,13 +62,13 @@ export default class QnaAdmin extends Component {
     )
   }
 
-  isDirty = index => !!this.state.originals[index == null ? NEW_INDEX : index]
+  updateState = newState => this.setState(newState)
 
-  getFormControlId = (index, suffix) => `form-${index != null ? index : NEW_INDEX}-${suffix}`
+  getFormControlId = (index, suffix) => `form-${index != null ? index : 'new'}-${suffix}`
 
   canSave = data => !!data.answer // && !!data.questions.length
 
-  renderQuestionForm = ({ data }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange, onSaveChange }) => (
+  renderQuestionForm = ({ data }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange }) => (
     <Fragment>
       {index == null && <h3>New Q&amp;A</h3>}
       <Checkbox checked={data.enabled} onChange={this.onPropChange(index, 'enabled', onChange)}>
@@ -153,10 +95,10 @@ export default class QnaAdmin extends Component {
         <Button
           type="button"
           bsStyle="success"
-          onClick={() => (index != null ? onSaveChange(index) : onCreate(data))}
+          onClick={() => (index != null ? onEdit(index) : onCreate())}
           disabled={!isDirty || !this.canSave(data)}
         >
-          Save
+          {index != null ? 'Save' : 'Create'}
         </Button>
       </ButtonToolbar>
     </Fragment>
@@ -167,16 +109,17 @@ export default class QnaAdmin extends Component {
       <Panel>
         <Panel.Body>
           <ArrayEditor
-            values={this.state.items}
-            newValue={this.state.newItem}
+            items={this.state.items}
+            newItem={this.state.newItem}
             renderItem={this.renderQuestionForm}
             onCreate={this.onCreate}
             onEdit={this.onEdit}
             onDelete={this.onDelete}
-            onSaveChange={this.onSaveChange}
             onChange={this.onChange}
             onReset={this.onReset}
             isDirty={this.isDirty}
+            updateState={this.updateState}
+            createNewItem={this.createEmptyQuestion}
           />
         </Panel.Body>
       </Panel>
