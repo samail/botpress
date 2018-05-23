@@ -1,6 +1,17 @@
 import React, { Component, Fragment } from 'react'
 
-import { Col, Row, Grid, FormGroup, ControlLabel, FormControl, Panel, ButtonToolbar, Button } from 'react-bootstrap'
+import {
+  Col,
+  Row,
+  Grid,
+  FormGroup,
+  ControlLabel,
+  FormControl,
+  Checkbox,
+  Panel,
+  ButtonToolbar,
+  Button
+} from 'react-bootstrap'
 
 import classnames from 'classnames'
 import omit from 'lodash/omit'
@@ -9,6 +20,15 @@ import ArrayEditor from './ArrayEditor'
 import style from './style.scss'
 
 const NEW_INDEX = 'new'
+
+const getInputValue = input => {
+  switch (input.type) {
+    case 'checkbox':
+      return input.checked
+    default:
+      return input.value
+  }
+}
 
 export default class QnaAdmin extends Component {
   createEmptyQuestion() {
@@ -93,7 +113,7 @@ export default class QnaAdmin extends Component {
         ...value,
         data: {
           ...value.data,
-          [prop]: event.target.value
+          [prop]: getInputValue(event.target)
         }
       },
       index
@@ -104,9 +124,14 @@ export default class QnaAdmin extends Component {
 
   getFormControlId = (index, suffix) => `form-${index != null ? index : NEW_INDEX}-${suffix}`
 
+  canSave = data => !!data.answer // && !!data.questions.length
+
   renderQuestionForm = ({ data }, index, { isDirty, onCreate, onEdit, onReset, onDelete, onChange, onSaveChange }) => (
     <Fragment>
       {index == null && <h3>New Q&amp;A</h3>}
+      <Checkbox checked={data.enabled} onChange={this.onPropChange(index, 'enabled', onChange)}>
+        Enabled
+      </Checkbox>
       <FormGroup controlId={this.getFormControlId(index, 'answer')}>
         <ControlLabel>Answer:</ControlLabel>
         <FormControl
@@ -129,7 +154,7 @@ export default class QnaAdmin extends Component {
           type="button"
           bsStyle="success"
           onClick={() => (index != null ? onSaveChange(index) : onCreate(data))}
-          disabled={!isDirty}
+          disabled={!isDirty || !this.canSave(data)}
         >
           Save
         </Button>
