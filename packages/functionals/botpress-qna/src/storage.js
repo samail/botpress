@@ -15,7 +15,7 @@ const getQuestionId = ({ questions }) =>
     .replace(/_+$/, '')}`
 
 export default class Storage {
-  constructor({ bp, config, provider }) {
+  constructor({ bp, config }) {
     this.ghost = bp.ghostManager
     this.projectDir = bp.projectLocation
     this.qnaDir = config.qnaDir
@@ -29,6 +29,7 @@ export default class Storage {
   async saveQuestion(id, data) {
     id = id || getQuestionId(data)
     await this.ghost.upsertFile(this.qnaDir, `${id}.json`, JSON.stringify({ id, data }, null, 2))
+    return id
   }
 
   async getQuestion(id) {
@@ -44,11 +45,11 @@ export default class Storage {
   }
 
   async getQuestions() {
-    const questions = await this.ghost.directoryListing(this.intentsDir, '.json')
+    const questions = await this.ghost.directoryListing(this.qnaDir, '.json')
     return Promise.map(questions, question => this.getQuestion({ filename: question }))
   }
 
   async deleteQuestion(id) {
-    await this.ghost.deleteFile(this.intentsDir, `${id}.json`)
+    await this.ghost.deleteFile(this.qnaDir, `${id}.json`)
   }
 }

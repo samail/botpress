@@ -103,19 +103,27 @@ export default class QnaAdmin extends Component {
     items: []
   }
 
+  componentDidMount() {
+    this.props.bp.axios.get('/api/botpress-qna/').then(({ data }) => {
+      this.setState({ items: data })
+    })
+  }
+
   onCreate = value => {
-    // API to create new
-    console.log('created', value)
+    return this.props.bp.axios.post('/api/botpress-qna/', value.data).then(({ data }) => ({
+      // update the value with the retrieved ID
+      ...value,
+      id: data
+    }))
   }
 
   onEdit = index => {
-    // API to edit
-    console.log('edited', index)
+    const value = this.state.items[index]
+    this.props.bp.axios.put(`/api/botpress-qna/${value.id}`, value.data)
   }
 
-  onDelete = index => {
-    // API to delete
-    console.log('delete', index)
+  onDelete = value => {
+    this.props.bp.axios.delete(`/api/botpress-qna/${value.id}`)
   }
 
   onPropChange = (index, prop, onChange) => event => {

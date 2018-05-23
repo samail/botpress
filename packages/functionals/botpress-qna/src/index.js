@@ -33,15 +33,17 @@ module.exports = {
       try {
         res.send(await storage.getQuestions())
       } catch (e) {
+        console.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
       }
     })
 
     router.post('/', async (req, res) => {
       try {
-        await storage.saveQuestion(null, req.body)
-        res.send(await storage.getQuestions())
+        const id = await storage.saveQuestion(null, req.body)
+        res.send(id)
       } catch (e) {
+        console.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
       }
     })
@@ -49,8 +51,9 @@ module.exports = {
     router.put('/:question', async (req, res) => {
       try {
         await storage.saveQuestion(req.params.question, req.body)
-        res.send(await storage.getQuestions())
+        res.end()
       } catch (e) {
+        console.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
       }
     })
@@ -58,8 +61,9 @@ module.exports = {
     router.delete('/:question', async (req, res) => {
       try {
         await storage.deleteQuestion(req.params.question)
-        res.send(await storage.getQuestions())
+        res.end()
       } catch (e) {
+        console.error('QnA Error', e, e.stack)
         res.status(500).send(e.message || 'Error')
       }
     })
